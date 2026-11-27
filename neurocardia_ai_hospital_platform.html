@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEUROCARDIA AI - Autonomous Heart & Brain Hospital Intelligence Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0284c7', // Primary Vibrant Medical Blue
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a'  // Dark Navy text
+                        },
+                        cyanAccent: '#06b6d4',
+                        clinicalBg: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D Surgical & Anatomical Simulations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Subtle grid background for clinical tech aesthetic */
+        .bg-grid-pattern {
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Glass card depth effects */
+        .clinical-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e0f2fe;
+            box-shadow: 0 4px 15px -1px rgba(2, 132, 199, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+        }
+        
+        .clinical-card-active {
+            border-color: #0284c7;
+            box-shadow: 0 6px 20px -2px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Crosshair cursor for DICOM view */
+        .cursor-crosshair-custom { cursor: crosshair; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 flex flex-col overflow-hidden bg-grid-pattern">
+
+    <!-- TOP GLOBAL CLINICAL NAVIGATION HEADER -->
+    <header class="h-16 bg-white border-b border-sky-100 px-4 flex items-center justify-between z-30 shrink-0 shadow-sm">
+        <!-- Logo & Platform Identification -->
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-sky-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-sky-200">
+                <i class="fa-solid font-bold fa-brain"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-lg tracking-tight text-slate-900">NEUROCARDIA <span class="text-sky-600">AI</span></span>
+                    <span class="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full border border-sky-200">v4.2 PROD</span>
+                </div>
+                <p class="text-[11px] text-slate-500 font-medium">Autonomous Heart & Brain Intelligence Platform</p>
+            </div>
+        </div>
+
+        <!-- Central Search & Agent Status Pill -->
+        <div class="hidden md:flex items-center space-x-6">
+            <!-- Global Search -->
+            <div class="relative w-80">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                <input type="text" placeholder="Search Patients, MRIs, ECGs, Clinical Rules..." class="w-full pl-9 pr-4 py-1.5 bg-slate-50 border border-sky-100 rounded-lg text-xs focus:outline-none focus:border-sky-500 focus:bg-white transition-all text-slate-800 placeholder-slate-400">
+            </div>
+
+            <!-- Multi-Agent Orchestrator Status Pill -->
+            <div class="flex items-center space-x-3 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-full">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-semibold text-slate-700">Orchestrator: <span class="text-sky-700 font-bold" id="orchestratorStatus">12 Specialized Agents Active</span></span>
+                <button onclick="switchTab('agent-command')" class="text-[11px] font-semibold text-sky-600 hover:text-sky-800 underline ml-1">Graph View</button>
+            </div>
+        </div>
+
+        <!-- User Role Switcher & Clinician Profile -->
+        <div class="flex items-center space-x-4">
+            <!-- Medical Disclaimer Badge -->
+            <div class="hidden xl:flex items-center space-x-1.5 text-amber-700 bg-amber-50 border border-amber-200 text-[11px] font-medium px-2.5 py-1 rounded-md">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                <span>Clinician Verification Mandatory</span>
+            </div>
+
+            <!-- Role Selector & Active User -->
+            <div class="flex items-center space-x-2 border-l border-slate-200 pl-4">
+                <div class="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                    MS
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-800">Mantasha Shaikh</div>
+                    <div class="text-[10px] text-sky-600 font-semibold">Senior Clinician & AI Architect</div>
+                </div>
+                <select id="userRoleSelect" onchange="onRoleChange(this.value)" class="ml-2 bg-sky-50 border border-sky-200 text-slate-800 text-xs rounded-lg font-medium p-1 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <option value="mantasha">Mantasha Shaikh (Lead Architect)</option>
+                    <option value="cardiologist">Dr. E. Vance, MD (Cardiologist)</option>
+                    <option value="neurologist">Dr. A. Chen, MD (Neurologist)</option>
+                    <option value="radiologist">Dr. R. Sharma, MD (Radiologist)</option>
+                </select>
+            </div>
+
+            <!-- Notification Bell -->
+            <button onclick="toggleAlertDrawer()" class="relative p-2 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors">
+                <i class="fa-solid fa-bell text-lg"></i>
+                <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER: SIDEBAR + CONTENT VIEW -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- SIDE NAVIGATION BAR -->
+        <aside class="w-64 bg-white border-r border-sky-100 flex flex-col justify-between shrink-0 z-20">
+            <div class="py-4 px-3 space-y-1 overflow-y-auto">
+                <div class="px-3 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Clinical Modules</div>
+
+                <button id="nav-overview" onclick="switchTab('overview')" class="nav-btn active w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl text-sky-700 bg-sky-50 border border-sky-200 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-hospital text-base text-sky-600 w-5"></i>
+                        <span>Hospital Overview</span>
+                    </div>
+                    <span class="bg-sky-200 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Live</span>
+                </button>
+
+                <button id="nav-agent-command" onclick="switchTab('agent-command')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-network-wired text-base text-sky-500 w-5"></i>
+                        <span>AI Agent Orchestrator</span>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-md">12 Active</span>
+                </button>
+
+                <button id="nav-cardiology" onclick="switchTab('cardiology')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-heart-pulse text-base text-rose-500 w-5"></i>
+                        <span>Cardiology Dept</span>
+                    </div>
+                    <span class="bg-rose-50 text-rose-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">3 Critical</span>
+                </button>
+
+                <button id="nav-neurology" onclick="switchTab('neurology')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-brain text-base text-purple-600 w-5"></i>
+                        <span>Neurology Dept</span>
+                    </div>
+                    <span class="bg-purple-50 text-purple-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">Stroke Alert</span>
+                </button>
+
+                <button id="nav-imaging" onclick="switchTab('imaging')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-x-ray text-base text-cyan-600 w-5"></i>
+                        <span>Medical Imaging DICOM</span>
+                    </div>
+                    <span class="bg-sky-100 text-sky-700 text-[10px] font-semibold px-1.5 py-0.5 rounded">6 Scans</span>
+                </button>
+
+                <button id="nav-surgical-lab" onclick="switchTab('surgical-lab')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-microscope text-base text-indigo-500 w-5"></i>
+                        <span>Surgical Sim Lab (3D)</span>
+                    </div>
+                    <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-1.5 py-0.5 rounded">3D WebGL</span>
+                </button>
+
+                <button id="nav-patient-care" onclick="switchTab('patient-care')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-hospital-user text-base text-emerald-600 w-5"></i>
+                        <span>Patient Care EHR</span>
+                    </div>
+                </button>
+
+                <button id="nav-emergency" onclick="switchTab('emergency')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-truck-medical text-base text-red-600 w-5"></i>
+                        <span>Emergency Command</span>
+                    </div>
+                    <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">2 Urgent</span>
+                </button>
+
+                <div class="px-3 pt-4 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Governance & Research</div>
+
+                <button id="nav-research" onclick="switchTab('research')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-book-bookmark text-base text-sky-600 w-5"></i>
+                        <span>Evidence & Research</span>
+                    </div>
+                </button>
+
+                <button id="nav-security" onclick="switchTab('security')" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium rounded-xl text-slate-600 hover:bg-sky-50 hover:text-sky-700 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-shield-halved text-base text-slate-600 w-5"></i>
+                        <span>Security & Audit Center</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- System Memory & Compliance Footprint -->
+            <div class="p-3 border-t border-sky-100 bg-slate-50">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[11px] font-semibold text-slate-500">HIPAA/GDPR Memory Vault</span>
+                    <span class="text-[10px] font-bold text-emerald-600">ENCRYPTED</span>
+                </div>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-sky-500 h-full w-3/4 rounded-full"></div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2 flex items-center justify-between">
+                    <span>Audit Log ID: #NC-8942-X</span>
+                    <i class="fa-solid fa-lock text-emerald-500"></i>
+                </p>
+            </div>
+        </aside>
+
+        <!-- DYNAMIC MAIN CONTENT VIEWPORT CONTAINER -->
+        <main class="flex-1 overflow-y-auto bg-slate-50 p-6 relative" id="mainContent">
+            
+            <!-- 1. HOSPITAL OVERVIEW DASHBOARD VIEW -->
+            <div id="view-overview" class="view-panel space-y-6">
+                <!-- Banner Notification -->
+                <div class="bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-600 rounded-2xl p-6 text-white shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between">
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-white/20 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">AUTONOMOUS DISPATCH ACTIVE</span>
+                            <span class="text-xs text-sky-100 font-mono">Shift Sync: 08:00 - 20:00 IST</span>
+                        </div>
+                        <h1 class="text-2xl font-bold tracking-tight">NeuroCardia Central Intelligence Command</h1>
+                        <p class="text-xs text-sky-100 max-w-2xl">Collaborative Multi-Agent clinical decision support active for 48 inpatient beds, 14 ICU telemetry channels, and real-time brain stroke monitoring.</p>
+                    </div>
+                    <div class="mt-4 lg:mt-0 flex space-x-3">
+                        <button onclick="triggerEmergencySim()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Simulate Acute Stroke Alert</span>
+                        </button>
+                        <button onclick="switchTab('agent-command')" class="px-4 py-2 bg-white text-sky-700 hover:bg-sky-50 rounded-xl text-xs font-bold shadow-md transition-all">
+                            View Agent Mesh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Metric Card 1 -->
+                    <div class="clinical-card rounded-2xl p-5 border border-sky-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Inpatients</p>
+                                <h3 class="text-2xl font-bold text-slate-900 mt-1">42 / 50</h3>
+                            </div>
+                            <div class="p-3 bg-sky-50 text-sky-600 rounded-xl">
+                                <i class="fa-solid fa-bed-pulse text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-xs">
+                            <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-arrow-up mr-1"></i>ICU Occupancy 84%</span>
+                            <span class="text-slate-400">8 Beds Free</span>
+                        </div>
+                    </div>
+
+                    <!-- Metric Card 2 -->
+                    <div class="clinical-card rounded-2xl p-5 border border-sky-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Clinician Review</p>
+                                <h3 class="text-2xl font-bold text-amber-600 mt-1">7 AI Drafts</h3>
+                            </div>
+                            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                                <i class="fa-solid fa-user-check text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-xs">
+                            <span class="text-amber-600 font-semibold">4 Cardiac / 3 Neuro</span>
+                            <button onclick="switchTab('imaging')" class="text-sky-600 underline font-medium">Review All</button>
+                        </div>
+                    </div>
+
+                    <!-- Metric Card 3 -->
+                    <div class="clinical-card rounded-2xl p-5 border border-sky-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stroke Door-to-Needle</p>
+                                <h3 class="text-2xl font-bold text-emerald-600 mt-1">24.5 min</h3>
+                            </div>
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i class="fa-solid fa-stopwatch text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-xs">
+                            <span class="text-emerald-600 font-semibold">35.2% faster than target</span>
+                            <span class="text-slate-400">AHA Guideline &lt;60m</span>
+                        </div>
+                    </div>
+
+                    <!-- Metric Card 4 -->
+                    <div class="clinical-card rounded-2xl p-5 border border-sky-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Agent Pipeline Velocity</p>
+                                <h3 class="text-2xl font-bold text-sky-600 mt-1">1.4s / task</h3>
+                            </div>
+                            <div class="p-3 bg-sky-50 text-sky-600 rounded-xl">
+                                <i class="fa-solid fa-microchip text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-xs">
+                            <span class="text-sky-600 font-semibold">100% Verification Guard</span>
+                            <span class="text-slate-400">0 Hallucinations Flagged</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Dashboard Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Column 1 & 2: Live Agent Collaboration Feed & Active Cases -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Live Agent Multi-Agent Execution Stream -->
+                        <div class="clinical-card rounded-2xl p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-sky-100 text-sky-700 rounded-lg">
+                                        <i class="fa-solid fa-network-wired"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-base font-bold text-slate-900">Live Multi-Agent Orchestration Stream</h2>
+                                        <p class="text-xs text-slate-500">Real-time inter-agent task delegation and evidence verification</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] font-mono text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">Channel: #hospital-mesh</span>
+                            </div>
+
+                            <!-- Feed Box -->
+                            <div id="liveAgentFeed" class="space-y-3 max-h-80 overflow-y-auto pr-2 font-mono text-xs">
+                                <!-- Dynamic logs rendered by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- High Priority Patient Queue -->
+                        <div class="clinical-card rounded-2xl p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-base font-bold text-slate-900">High-Priority Cardiac & Neuro Patients</h2>
+                                <button onclick="switchTab('patient-care')" class="text-xs text-sky-600 font-semibold hover:underline">View All 42 Patients</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="border-b border-sky-100 text-slate-400 uppercase text-[10px] tracking-wider">
+                                            <th class="py-2.5 px-3">Patient</th>
+                                            <th class="py-2.5 px-3">Primary Diagnosis</th>
+                                            <th class="py-2.5 px-3">Triage</th>
+                                            <th class="py-2.5 px-3">Assigned AI Specialist</th>
+                                            <th class="py-2.5 px-3">Status</th>
+                                            <th class="py-2.5 px-3 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="overviewPatientTable" class="divide-y divide-slate-100 font-medium">
+                                        <!-- Rendered by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Emergency Quick Triage & Department Status -->
+                    <div class="space-y-6">
+                        <!-- Department Telemetry Summary -->
+                        <div class="clinical-card rounded-2xl p-5 space-y-4">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center justify-between">
+                                <span>Department Status</span>
+                                <i class="fa-solid fa-hospital-user text-sky-500"></i>
+                            </h2>
+
+                            <!-- Cardiology -->
+                            <div class="p-3 rounded-xl bg-sky-50/60 border border-sky-100 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800 text-xs">Cardiology Unit</span>
+                                    <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Optimal</span>
+                                </div>
+                                <div class="text-[11px] text-slate-600 space-y-1">
+                                    <div class="flex justify-between"><span>ECG AI Monitor:</span> <span class="font-semibold text-slate-800">18 Active Telemetry</span></div>
+                                    <div class="flex justify-between"><span>Cath Lab Status:</span> <span class="font-semibold text-emerald-600">Standby (1 Ready)</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Neurology -->
+                            <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-100 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800 text-xs">Neurology & Stroke Center</span>
+                                    <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">High Alert</span>
+                                </div>
+                                <div class="text-[11px] text-slate-600 space-y-1">
+                                    <div class="flex justify-between"><span>Brain MRI Queue:</span> <span class="font-semibold text-slate-800">2 Urgent Scans</span></div>
+                                    <div class="flex justify-between"><span>Thrombolysis Team:</span> <span class="font-semibold text-amber-600">On Standby</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Operating Rooms -->
+                            <div class="p-3 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800 text-xs">Cardiothoracic & Neuro OR</span>
+                                    <span class="text-[10px] font-bold bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">2 Active ORs</span>
+                                </div>
+                                <div class="text-[11px] text-slate-600 space-y-1">
+                                    <div class="flex justify-between"><span>OR-1 (CABG Sim):</span> <span class="font-semibold text-slate-800">In Training</span></div>
+                                    <div class="flex justify-between"><span>OR-3 (Craniotomy):</span> <span class="font-semibold text-slate-800">Prep Phase</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick AI Decision Assistant Sandbox -->
+                        <div class="clinical-card rounded-2xl p-5 border border-sky-200">
+                            <h3 class="text-xs font-bold text-sky-700 uppercase tracking-wider mb-2">Central Agent Prompt Sandbox</h3>
+                            <p class="text-xs text-slate-500 mb-3">Ask Orchestrator to trigger multi-agent differential diagnosis query:</p>
+                            <textarea id="quickAgentQuery" rows="3" class="w-full text-xs p-3 bg-slate-50 border border-sky-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-800" placeholder="e.g. Evaluate 64M patient with acute chest tightness and left arm numbness, past history of HTN..."></textarea>
+                            <button onclick="dispatchAgentQuery()" class="mt-3 w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Execute Agent Mesh Analysis</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. AI AGENT COMMAND CENTER VIEW -->
+            <div id="view-agent-command" class="view-panel hidden space-y-6">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-sitemap text-sky-600"></i>
+                            <span>Multi-Agent Architecture & Dynamic Graph Mesh</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Hierarchical delegation network with automatic clinical contradiction resolution and memory verification.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-semibold text-slate-600">Execution Mode:</span>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">Strict Human-in-the-Loop</span>
+                    </div>
+                </div>
+
+                <!-- Agent Graph Visualizer Card -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Graph Layout Canvas -->
+                    <div class="lg:col-span-2 clinical-card rounded-2xl p-6 min-h-[480px] flex flex-col justify-between relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-4 z-10">
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Topology Map</span>
+                            <div class="flex space-x-2 text-xs">
+                                <span class="flex items-center space-x-1 text-slate-600"><span class="w-3 h-3 rounded-full bg-sky-500 inline-block"></span> Manager</span>
+                                <span class="flex items-center space-x-1 text-slate-600"><span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span> Specialist</span>
+                                <span class="flex items-center space-x-1 text-slate-600"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Verifier</span>
+                            </div>
+                        </div>
+
+                        <!-- Visual Interactive Node Network -->
+                        <div class="relative flex-1 flex items-center justify-center">
+                            <!-- Central Orchestrator Node -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-36 h-36 rounded-full bg-sky-50 border-2 border-sky-500 flex flex-col items-center justify-center p-2 text-center shadow-lg shadow-sky-100 z-10 animate-pulse">
+                                    <i class="fa-solid fa-brain text-sky-600 text-2xl mb-1"></i>
+                                    <span class="font-bold text-xs text-sky-900">CENTRAL MANAGER</span>
+                                    <span class="text-[10px] text-sky-700 font-mono">Orchestrator Agent</span>
+                                </div>
+                            </div>
+
+                            <!-- Satellite Specialized Agents -->
+                            <!-- Cardiology Cluster (Top Left) -->
+                            <div onclick="inspectAgent('cardiology')" class="cursor-pointer absolute top-4 left-6 bg-white border-2 border-rose-400 p-3 rounded-xl shadow-sm text-center w-40 hover:scale-105 transition-transform">
+                                <i class="fa-solid fa-heart-pulse text-rose-500 text-lg mb-1"></i>
+                                <div class="font-bold text-xs text-slate-800">Cardiology Agent</div>
+                                <div class="text-[10px] text-slate-500">ECG & Biomarkers</div>
+                            </div>
+
+                            <!-- Neurology Cluster (Top Right) -->
+                            <div onclick="inspectAgent('neurology')" class="cursor-pointer absolute top-4 right-6 bg-white border-2 border-purple-400 p-3 rounded-xl shadow-sm text-center w-40 hover:scale-105 transition-transform">
+                                <i class="fa-solid fa-brain text-purple-500 text-lg mb-1"></i>
+                                <div class="font-bold text-xs text-slate-800">Neurology Agent</div>
+                                <div class="text-[10px] text-slate-500">Stroke & NIHSS</div>
+                            </div>
+
+                            <!-- Imaging Agent (Bottom Left) -->
+                            <div onclick="inspectAgent('imaging')" class="cursor-pointer absolute bottom-4 left-6 bg-white border-2 border-cyan-400 p-3 rounded-xl shadow-sm text-center w-40 hover:scale-105 transition-transform">
+                                <i class="fa-solid fa-x-ray text-cyan-600 text-lg mb-1"></i>
+                                <div class="font-bold text-xs text-slate-800">Imaging Agent</div>
+                                <div class="text-[10px] text-slate-500">CT/MRI Segmentation</div>
+                            </div>
+
+                            <!-- Verification Agent (Bottom Right) -->
+                            <div onclick="inspectAgent('verification')" class="cursor-pointer absolute bottom-4 right-6 bg-white border-2 border-emerald-400 p-3 rounded-xl shadow-sm text-center w-40 hover:scale-105 transition-transform">
+                                <i class="fa-solid fa-clipboard-check text-emerald-600 text-lg mb-1"></i>
+                                <div class="font-bold text-xs text-slate-800">Verification Agent</div>
+                                <div class="text-[10px] text-slate-500">Guidelines & Audit</div>
+                            </div>
+                        </div>
+
+                        <!-- Execution Footer Legend -->
+                        <div class="pt-4 border-t border-sky-100 flex justify-between text-[11px] text-slate-500">
+                            <span>Click any node to inspect prompt context and isolated agent memory.</span>
+                            <span class="font-mono text-sky-600">Graph State: BOUNDED_EXECUTION</span>
+                        </div>
+                    </div>
+
+                    <!-- Selected Agent Inspector Panel -->
+                    <div class="clinical-card rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-3 border-b border-sky-100">
+                                <h3 id="inspectorAgentTitle" class="font-bold text-sm text-slate-900">Cardiology Diagnostic Agent</h3>
+                                <span id="inspectorAgentBadge" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">IDLE / READY</span>
+                            </div>
+
+                            <div class="mt-4 space-y-3 text-xs">
+                                <div>
+                                    <span class="font-bold text-slate-700">Role & Responsibilities:</span>
+                                    <p id="inspectorAgentDesc" class="text-slate-600 mt-1">Interprets multi-lead ECG signals, evaluates high-sensitivity Cardiac Troponin T trends, and provides differential recommendations for clinicians.</p>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-700">Allowed Tool Permissions:</span>
+                                    <ul id="inspectorAgentTools" class="list-disc list-inside text-slate-600 mt-1 font-mono text-[11px]">
+                                        <li>ecg_waveform_parser()</li>
+                                        <li>troponin_kinetics_calculator()</li>
+                                        <li>aha_guidelines_retriever()</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-700">Recent Task Executed:</span>
+                                    <p id="inspectorAgentTask" class="bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-700 font-mono text-[11px] mt-1">
+                                        TASK_8941: Analyzed Lead II ST-elevation segment for Patient #102. Output flagged STEMI risk. Escalated to Emergency MD.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerTestAgentExecution()" class="w-full py-2 bg-sky-600 text-white rounded-xl text-xs font-bold hover:bg-sky-700 transition-all">
+                            Dispatch Test Workload
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CARDIOLOGY DEPARTMENT VIEW -->
+            <div id="view-cardiology" class="view-panel hidden space-y-6">
+                <!-- Cardiology Header -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-heart-pulse text-rose-500"></i>
+                            <span>Cardiology Intelligence Center</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Real-time ECG telemetry, biomarker kinetics, and ejection fraction risk stratification.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="toggleECGRhythm('normal')" class="px-3 py-1.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-lg text-xs font-bold hover:bg-sky-100">Normal Sinus</button>
+                        <button onclick="toggleECGRhythm('stemi')" class="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold hover:bg-rose-100">Acute STEMI</button>
+                    </div>
+                </div>
+
+                <!-- ECG Waveform Viewer Canvas -->
+                <div class="clinical-card rounded-2xl p-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-bold text-slate-800">12-LEAD ECG REAL-TIME TELEMETRY (LEAD II)</span>
+                            <span class="text-[10px] bg-rose-100 text-rose-700 font-mono font-bold px-2 py-0.5 rounded">HR: <span id="ecgHR">72</span> BPM</span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-mono">Sweep: 25 mm/s | Gain: 10 mm/mV</div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="w-full bg-slate-900 rounded-xl overflow-hidden p-2 relative shadow-inner">
+                        <canvas id="ecgCanvas" class="w-full h-44 block"></canvas>
+                    </div>
+
+                    <!-- AI Waveform Breakdown Card -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">PR Interval</div>
+                            <div class="text-sm font-bold text-slate-800 font-mono mt-0.5">142 ms <span class="text-xs text-emerald-600 font-normal">(Normal)</span></div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">QRS Duration</div>
+                            <div class="text-sm font-bold text-slate-800 font-mono mt-0.5">88 ms <span class="text-xs text-emerald-600 font-normal">(Normal)</span></div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">QT / QTc</div>
+                            <div class="text-sm font-bold text-slate-800 font-mono mt-0.5">410 / 432 ms</div>
+                        </div>
+                        <div class="bg-rose-50 p-3 rounded-xl border border-rose-200">
+                            <div class="text-[10px] text-rose-500 font-bold uppercase">AI Diagnostic Flag</div>
+                            <div id="ecgFlagText" class="text-xs font-bold text-rose-700 mt-0.5">Sinus Rhythm - No Acute Ischemia</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heart Failure & Cardiac Biomarkers Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Biomarker Kinetics -->
+                    <div class="clinical-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center justify-between">
+                            <span>Cardiac Biomarker Trends (Patient #102)</span>
+                            <i class="fa-solid fa-vial text-rose-500"></i>
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-slate-800">hs-cTnT (High-Sensitivity Troponin T)</div>
+                                    <div class="text-[11px] text-slate-500">Ref Range: &lt; 14 ng/L</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-bold text-rose-600 font-mono">482.5 ng/L</span>
+                                    <div class="text-[10px] text-rose-500 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> Critical Rise</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-slate-800">NT-proBNP</div>
+                                    <div class="text-[11px] text-slate-500">Ref Range: &lt; 125 pg/mL</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-bold text-amber-600 font-mono">2,140 pg/mL</span>
+                                    <div class="text-[10px] text-amber-600 font-semibold">Elevated (Heart Failure)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Echo Risk Stratification -->
+                    <div class="clinical-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center justify-between">
+                            <span>Echocardiography Risk Stratification</span>
+                            <i class="fa-solid fa-heart text-sky-500"></i>
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 flex justify-between items-center">
+                                <div>
+                                    <div class="font-bold text-slate-800">Left Ventricular Ejection Fraction (LVEF)</div>
+                                    <div class="text-[11px] text-slate-500">Quantified via Simpson's Biplane Rule</div>
+                                </div>
+                                <span class="text-lg font-bold text-sky-700 font-mono">38% (HFrEF)</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="font-bold text-slate-800">Wall Motion Abnormality Draft Note</div>
+                                <p class="text-slate-600 text-[11px] mt-1">Hypokinesis detected in the anterior and apical LV segments, consistent with LAD coronary territory ischemia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. NEUROLOGY DEPARTMENT VIEW -->
+            <div id="view-neurology" class="view-panel hidden space-y-6">
+                <!-- Neurology Header -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-brain text-purple-600"></i>
+                            <span>Neurology & Acute Stroke Pipeline</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">NIHSS examination scoring, ischemic penumbra tracking, and time-critical thrombolysis workflows.</p>
+                    </div>
+                    <span class="bg-red-100 text-red-700 font-bold text-xs px-3 py-1.5 rounded-full border border-red-200 animate-pulse">
+                        <i class="fa-solid fa-bell mr-1"></i> CODE STROKE ACTIVE
+                    </span>
+                </div>
+
+                <!-- Stroke Door-to-Needle Pipeline Monitor -->
+                <div class="clinical-card rounded-2xl p-6 space-y-4">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Acute Stroke Door-to-Needle Benchmark Tracker</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                            <div class="text-[10px] text-emerald-700 font-bold">1. Patient Door Arrival</div>
+                            <div class="text-xs font-bold text-slate-800 mt-1">10:14:02 AM</div>
+                            <div class="text-[10px] text-emerald-600 mt-0.5"><i class="fa-solid fa-check"></i> Verified Triage</div>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                            <div class="text-[10px] text-emerald-700 font-bold">2. Non-Contrast CT Scan</div>
+                            <div class="text-xs font-bold text-slate-800 mt-1">10:22:15 AM (8m elapsed)</div>
+                            <div class="text-[10px] text-emerald-600 mt-0.5"><i class="fa-solid fa-check"></i> No Hemorrhage</div>
+                        </div>
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                            <div class="text-[10px] text-amber-700 font-bold">3. Agent ASPECT Scoring</div>
+                            <div class="text-xs font-bold text-slate-800 mt-1">ASPECTS Score: 8/10</div>
+                            <div class="text-[10px] text-amber-600 mt-0.5"><i class="fa-solid fa-hourglass-half"></i> Clinician Sign-off</div>
+                        </div>
+                        <div class="p-3 bg-slate-100 border border-slate-200 rounded-xl">
+                            <div class="text-[10px] text-slate-500 font-bold">4. IV tPA / Tenecteplase</div>
+                            <div class="text-xs font-bold text-slate-400 mt-1">Pending Sign-off</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Target &lt; 45 min</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NIHSS Score Calculator Card -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 clinical-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-900">Interactive NIH Stroke Scale (NIHSS) Assessor</h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-slate-800">1a. Level of Consciousness</div>
+                                    <div class="text-[11px] text-slate-500">Alert, drowsy, or unresponsive</div>
+                                </div>
+                                <select id="nihss1" onchange="calcNIHSS()" class="bg-white border border-slate-300 rounded p-1 text-xs font-bold text-slate-800">
+                                    <option value="0">0 - Alert</option>
+                                    <option value="1">1 - Not alert, arousal by minor stimulation</option>
+                                    <option value="2">2 - Not alert, repeated stimulation needed</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-slate-800">5a. Left Arm Motor Drift</div>
+                                    <div class="text-[11px] text-slate-500">Limb drift before full 10 seconds</div>
+                                </div>
+                                <select id="nihss2" onchange="calcNIHSS()" class="bg-white border border-slate-300 rounded p-1 text-xs font-bold text-slate-800">
+                                    <option value="0">0 - No drift</option>
+                                    <option value="2" selected>2 - Drift before 10s</option>
+                                    <option value="4">4 - No movement against gravity</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="font-bold text-slate-800">9. Best Language / Aphasia</div>
+                                    <div class="text-[11px] text-slate-500">Naming objects & comprehension</div>
+                                </div>
+                                <select id="nihss3" onchange="calcNIHSS()" class="bg-white border border-slate-300 rounded p-1 text-xs font-bold text-slate-800">
+                                    <option value="0">0 - Normal</option>
+                                    <option value="1" selected>1 - Mild to moderate aphasia</option>
+                                    <option value="3">3 - Severe global aphasia</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Score Display -->
+                    <div class="clinical-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-500 uppercase">Calculated NIHSS Score</span>
+                            <div class="text-4xl font-bold text-purple-700 font-mono mt-2" id="nihssTotalScore">3 / 42</div>
+                            <p class="text-xs text-purple-900 mt-2 font-medium" id="nihssCategory">Moderate Stroke Severity</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded-xl border border-purple-100 text-xs text-purple-900">
+                            <span class="font-bold">AI Guidelines Advice:</span> Patient falls within the 4.5-hour thrombolysis window. No head CT intracranial hemorrhage detected.
+                        </div>
+                        <button onclick="approveStrokeProtocol()" class="w-full py-2 bg-purple-600 text-white font-bold rounded-xl text-xs hover:bg-purple-700 shadow-md">
+                            Confirm Clinician tPA Authorization
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. MEDICAL IMAGING CENTER VIEW (DICOM VIEWER SIMULATOR) -->
+            <div id="view-imaging" class="view-panel hidden space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-x-ray text-cyan-600"></i>
+                            <span>Medical Imaging Intelligence Viewer (DICOM)</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Multi-sequence Brain MRI / Cardiac CT DICOM slice navigation with windowing & AI segmentation overlays.</p>
+                    </div>
+                    <!-- Sequence Tabs -->
+                    <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl">
+                        <button onclick="setSequence('T1')" class="seq-btn px-3 py-1 text-xs font-bold rounded-lg bg-white shadow-sm text-sky-700">T1 Weighted</button>
+                        <button onclick="setSequence('T2')" class="seq-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/50">T2 Weighted</button>
+                        <button onclick="setSequence('FLAIR')" class="seq-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/50">FLAIR</button>
+                    </div>
+                </div>
+
+                <!-- Main DICOM Workbench -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Tools & Controls Panel -->
+                    <div class="clinical-card rounded-2xl p-4 space-y-4 text-xs">
+                        <span class="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Viewer Controls</span>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-slate-600 font-medium">Slice Index: <span id="sliceVal" class="font-bold font-mono">14 / 28</span></label>
+                                <input type="range" id="sliceSlider" min="1" max="28" value="14" oninput="updateSlice(this.value)" class="w-full mt-1 accent-sky-600">
+                            </div>
+                            <div>
+                                <label class="text-slate-600 font-medium">Contrast Windowing (WW/WL)</label>
+                                <select class="w-full bg-slate-50 border border-slate-200 rounded p-1.5 mt-1 font-semibold text-slate-800">
+                                    <option>Brain Soft Tissue (WW: 80, WL: 40)</option>
+                                    <option>Bone Window (WW: 2000, WL: 500)</option>
+                                    <option>Stroke Ischemia (WW: 35, WL: 35)</option>
+                                </select>
+                            </div>
+                            <div class="pt-2 border-t border-sky-100 space-y-2">
+                                <label class="flex items-center space-x-2 font-medium text-slate-700">
+                                    <input type="checkbox" id="chkAISegmentation" checked onchange="drawDicomSlice()" class="rounded text-sky-600">
+                                    <span>AI Tumor / Ischemia Overlay</span>
+                                </label>
+                                <label class="flex items-center space-x-2 font-medium text-slate-700">
+                                    <input type="checkbox" id="chkROIMeasure" onchange="drawDicomSlice()" class="rounded text-sky-600">
+                                    <span>Show ROI Caliper Tool</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Scan Metadata -->
+                        <div class="pt-3 border-t border-sky-100 space-y-1 font-mono text-[11px] text-slate-500">
+                            <div>Modality: MR (3.0 Tesla)</div>
+                            <div>Patient: #108 (G. Vance)</div>
+                            <div>Matrix: 512 x 512 px</div>
+                        </div>
+                    </div>
+
+                    <!-- Center DICOM Viewport Canvas -->
+                    <div class="lg:col-span-2 clinical-card rounded-2xl p-4 flex flex-col items-center justify-center bg-slate-900 relative">
+                        <canvas id="dicomCanvas" width="480" height="480" class="max-w-full h-auto cursor-crosshair-custom rounded-lg border border-slate-800"></canvas>
+                        
+                        <div class="absolute top-6 left-6 text-emerald-400 font-mono text-[11px] bg-slate-900/80 px-2 py-1 rounded border border-emerald-500/30">
+                            Seq: <span id="seqTag">T1-Axial</span> | Slice: <span id="sliceTag">14</span>
+                        </div>
+                    </div>
+
+                    <!-- Right AI Observation Draft & Radiologist Signoff -->
+                    <div class="clinical-card rounded-2xl p-5 flex flex-col justify-between space-y-4 text-xs">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between pb-2 border-b border-sky-100">
+                                <span class="font-bold text-slate-900">AI Radiologist Draft Note</span>
+                                <span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">UNCONFIRMED</span>
+                            </div>
+                            <div class="p-3 bg-sky-50/60 rounded-xl border border-sky-100 space-y-2 text-slate-700">
+                                <span class="font-bold text-sky-900">Observations:</span>
+                                <p class="text-[11px] leading-relaxed">
+                                    High signal intensity region detected in right middle cerebral artery (MCA) territory on FLAIR sequence. Estimated lesion volume: <span class="font-bold font-mono">14.2 cm³</span>. No mass effect or midline shift observed.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <button onclick="radiologistApproveScan()" class="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md">
+                                <i class="fa-solid fa-signature mr-1"></i> Confirm & Sign DICOM Report
+                            </button>
+                            <p class="text-[10px] text-slate-400 text-center">Requires Dr. R. Sharma (Radiologist) electronic signature.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. SURGICAL SIMULATION LAB (3D THREE.JS CANVAS) -->
+            <div id="view-surgical-lab" class="view-panel hidden space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-microscope text-indigo-600"></i>
+                            <span>Interactive 3D Anatomical & Surgical Simulation Lab</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Supervised surgical training environment rendered via WebGL. Click and drag to rotate anatomy.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="load3DModel('heart')" class="px-3 py-1.5 bg-rose-50 text-rose-700 font-bold border border-rose-200 rounded-lg text-xs hover:bg-rose-100">3D Cardiac Anatomy</button>
+                        <button onclick="load3DModel('brain')" class="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold border border-purple-200 rounded-lg text-xs hover:bg-purple-100">3D Brain Anatomy</button>
+                    </div>
+                </div>
+
+                <!-- Interactive 3D Canvas & Simulation Workbench -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 3D Three.js Viewport Canvas -->
+                    <div class="lg:col-span-2 clinical-card rounded-2xl p-4 bg-slate-950 flex flex-col justify-between relative min-h-[460px] overflow-hidden">
+                        <!-- Canvas Container -->
+                        <div id="threeCanvasContainer" class="w-full h-full absolute inset-0"></div>
+
+                        <!-- Floating Canvas Control Overlay -->
+                        <div class="z-10 flex justify-between items-center p-3 text-white text-xs bg-slate-900/70 backdrop-blur-md rounded-xl border border-slate-800">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="font-mono font-bold" id="modelLabel">3D Cardiac Model Active</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300">Left-Click: Rotate | Right-Click: Pan | Scroll: Zoom</div>
+                        </div>
+
+                        <div class="z-10 text-slate-400 font-mono text-[10px] p-2 bg-slate-900/60 rounded backdrop-blur">
+                            Renderer: Three.js WebGL | Shading: Phong Material Simulation
+                        </div>
+                    </div>
+
+                    <!-- Surgical Procedure Steps & Interactive Evaluation Quiz -->
+                    <div class="clinical-card rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm pb-2 border-b border-sky-100">Surgical Procedure Simulation: CABG Step 2</h3>
+                            
+                            <!-- Interactive Simulation Tasks -->
+                            <div class="mt-4 space-y-3 text-xs">
+                                <div class="p-3 bg-sky-50 rounded-xl border border-sky-100">
+                                    <span class="font-bold text-sky-900">Current Task:</span>
+                                    <p class="text-slate-700 text-[11px] mt-1">Identify and isolate the Left Internal Mammary Artery (LIMA) for distal anastomosis to the Left Anterior Descending (LAD) coronary artery.</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <span class="font-bold text-slate-800">Evaluation Question:</span>
+                                    <p class="text-slate-600 text-[11px]">What is the primary physiological benefit of using arterial conduits over saphenous vein grafts in CABG?</p>
+                                    
+                                    <div class="space-y-1.5 pt-1">
+                                        <button onclick="answerQuiz(true)" class="w-full text-left p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-sky-50 hover:border-sky-300 text-[11px] text-slate-800 font-medium">
+                                            A. Higher long-term graft patency rates (&gt;90% at 10 yrs)
+                                        </button>
+                                        <button onclick="answerQuiz(false)" class="w-full text-left p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-sky-50 hover:border-sky-300 text-[11px] text-slate-800 font-medium">
+                                            B. Faster surgical harvesting time
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Box -->
+                        <div id="quizFeedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. PATIENT CARE MANAGEMENT VIEW -->
+            <div id="view-patient-care" class="view-panel hidden space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-hospital-user text-emerald-600"></i>
+                            <span>Patient Electronic Health Record (EHR) & AI Assistant</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Longitudinal medical history, drug interaction safety checks, and patient-friendly term translation.</p>
+                    </div>
+                </div>
+
+                <!-- Patient Profile Card & Translator Sandbox -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Patient Summary Card -->
+                    <div class="clinical-card rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center space-x-4 pb-4 border-b border-sky-100">
+                            <div class="w-12 h-12 rounded-full bg-sky-100 border border-sky-300 flex items-center justify-center text-sky-700 font-bold text-lg">
+                                GV
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">Gabriel Vance (ID: #102)</h3>
+                                <div class="text-xs text-slate-500">64 Yrs | Male | DOB: 14/05/1962</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Known Allergies:</span>
+                                <span class="font-bold text-rose-600">Penicillin (Anaphylaxis)</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Blood Group:</span>
+                                <span class="font-bold text-slate-800">O Positive</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Attending Lead Clinician:</span>
+                                <span class="font-bold text-sky-700">Mantasha Shaikh (AI Architect)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Medical Term Translator for Patient Education -->
+                    <div class="lg:col-span-2 clinical-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-language text-sky-600"></i>
+                            <span>Patient AI Term Translator & Plain-Language Summarizer</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Converts complex clinical reports into easily understood patient education briefings.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="font-bold text-slate-700 block mb-1">Clinical Report Text:</span>
+                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-mono text-[11px] h-32 overflow-y-auto">
+                                    "Echocardiogram demonstrates anteroseptal wall hypokinesis with a reduced LVEF of 38%, secondary to acute myocardial infarction."
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-bold text-sky-700 block mb-1">Plain-Language Patient Explanation:</span>
+                                <div class="p-3 bg-sky-50 border border-sky-100 rounded-xl text-sky-900 text-[11px] leading-relaxed h-32 overflow-y-auto">
+                                    "The ultrasound scan of your heart shows that a portion of your heart muscle isn't pumping as strongly as usual. Your heart's pumping efficiency is at 38%, which means we need to prescribe medication to help relieve stress on your heart."
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. EMERGENCY COMMAND CENTER VIEW -->
+            <div id="view-emergency" class="view-panel hidden space-y-6">
+                <div class="flex justify-between items-center bg-red-600 p-6 rounded-2xl text-white shadow-lg">
+                    <div>
+                        <h1 class="text-xl font-bold flex items-center space-x-2">
+                            <i class="fa-solid fa-truck-medical"></i>
+                            <span>High-Priority Emergency Command Center</span>
+                        </h1>
+                        <p class="text-xs text-red-100 mt-1">Red/Amber critical alert triggers and rapid clinical handover dispatch.</p>
+                    </div>
+                    <button onclick="triggerEmergencySim()" class="px-4 py-2 bg-white text-red-700 font-bold rounded-xl text-xs hover:bg-red-50">
+                        + Dispatch New Emergency Case
+                    </button>
+                </div>
+
+                <!-- Triage Queue Table -->
+                <div class="clinical-card rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900">Active High-Priority Emergency Triage Queue</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-sky-100 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="py-2.5 px-3">Case ID</th>
+                                    <th class="py-2.5 px-3">Category</th>
+                                    <th class="py-2.5 px-3">Symptoms / Severity</th>
+                                    <th class="py-2.5 px-3">Arrival Time</th>
+                                    <th class="py-2.5 px-3">Escalation Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                <tr>
+                                    <td class="py-3 px-3 font-mono font-bold text-red-600">#EMG-902</td>
+                                    <td class="py-3 px-3"><span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">Acute Stroke</span></td>
+                                    <td class="py-3 px-3">Right-sided facial droop & hemiparesis</td>
+                                    <td class="py-3 px-3 font-mono">10:14 AM</td>
+                                    <td class="py-3 px-3"><span class="text-emerald-600 font-bold">Code Stroke Activated</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-mono font-bold text-amber-600">#EMG-884</td>
+                                    <td class="py-3 px-3"><span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded">Chest Pain</span></td>
+                                    <td class="py-3 px-3">Substernal pressure, troponin rise</td>
+                                    <td class="py-3 px-3 font-mono">09:42 AM</td>
+                                    <td class="py-3 px-3"><span class="text-sky-600 font-bold">Cath Lab Assigned</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. CLINICAL RESEARCH & EVIDENCE CENTER VIEW -->
+            <div id="view-research" class="view-panel hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-book-bookmark text-sky-600"></i>
+                            <span>Clinical Research & Medical Guidelines Matrix</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Authoritative literature retrieval from AHA, ASA, ESC, and PubMed database indices.</p>
+                    </div>
+                </div>
+
+                <!-- Guidelines Citation Search Card -->
+                <div class="clinical-card rounded-2xl p-5 space-y-4">
+                    <div class="flex space-x-2">
+                        <input type="text" id="guidelineQuery" placeholder="Search guidelines e.g. 'Dual Antiplatelet Therapy in STEMI'..." class="flex-1 p-2 bg-slate-50 border border-sky-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <button onclick="searchGuidelines()" class="px-4 py-2 bg-sky-600 text-white rounded-xl font-bold text-xs hover:bg-sky-700">Query Evidence Graph</button>
+                    </div>
+
+                    <!-- Guidelines Results Box -->
+                    <div id="guidelinesResult" class="p-4 bg-sky-50 rounded-xl border border-sky-100 text-xs text-slate-700 space-y-2">
+                        <span class="font-bold text-sky-900">AHA/ACC 2023 Guideline Citation Found:</span>
+                        <p class="text-[11px] leading-relaxed">"Class I Recommendation (Level of Evidence: A): Patients undergoing PCI for acute coronary syndrome should receive aspirin plus a potent P2Y12 inhibitor for at least 12 months."</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. SECURITY & AUDIT CENTER VIEW -->
+            <div id="view-security" class="view-panel hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-sky-100 shadow-sm">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-halved text-slate-700"></i>
+                            <span>Security, HIPAA Audit Trail & Memory Isolation</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Immutable execution audit logging, RBAC key permissions, and cryptographic consent compliance.</p>
+                    </div>
+                </div>
+
+                <!-- Immutable Audit Log Table -->
+                <div class="clinical-card rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900">Cryptographic System Audit Trail</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs font-mono">
+                            <thead>
+                                <tr class="border-b border-sky-100 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="py-2.5 px-3">Timestamp</th>
+                                    <th class="py-2.5 px-3">Actor / Agent</th>
+                                    <th class="py-2.5 px-3">Action Executed</th>
+                                    <th class="py-2.5 px-3">Verification Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr>
+                                    <td class="py-2 px-3 text-slate-400">10:14:05.122</td>
+                                    <td class="py-2 px-3 font-bold text-purple-700">Neurology Diagnostic Agent</td>
+                                    <td class="py-2 px-3">Generated ASPECT stroke score draft</td>
+                                    <td class="py-2 px-3 text-slate-400">0x89F...A21</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3 text-slate-400">10:15:30.004</td>
+                                    <td class="py-2 px-3 font-bold text-sky-700">Dr. R. Sharma (Radiologist)</td>
+                                    <td class="py-2 px-3">Electronically signed Brain MRI report</td>
+                                    <td class="py-2 px-3 text-slate-400">0x31C...E49</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- GLOBAL NOTIFICATION DRAWER / SLIDE-OVER -->
+    <div id="alertDrawer" class="hidden fixed inset-y-0 right-0 w-80 bg-white border-l border-sky-100 shadow-2xl z-50 p-5 space-y-4 transition-all">
+        <div class="flex justify-between items-center pb-3 border-b border-sky-100">
+            <h3 class="font-bold text-sm text-slate-900">Critical Notifications</h3>
+            <button onclick="toggleAlertDrawer()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-900">
+                <span class="font-bold block">Acute Stroke Alert (#EMG-902)</span>
+                <span class="text-[10px] text-red-600">Door-to-needle target counter running: 24m elapsed.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        /* ==========================================================================
+           1. NAVIGATION & TAB SWITCHING ENGINE
+           ========================================================================== */
+        function switchTab(tabId) {
+            // Hide all views
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            
+            // Show requested view
+            const target = document.getElementById('view-' + tabId);
+            if(target) target.classList.remove('hidden');
+
+            // Deactivate all sidebar nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-sky-50', 'text-sky-700', 'border', 'border-sky-200', 'font-semibold');
+                btn.classList.add('text-slate-600', 'font-medium');
+            });
+
+            // Activate current button
+            const activeNav = document.getElementById('nav-' + tabId);
+            if(activeNav) {
+                activeNav.classList.add('active', 'bg-sky-50', 'text-sky-700', 'border', 'border-sky-200', 'font-semibold');
+                activeNav.classList.remove('text-slate-600', 'font-medium');
+            }
+
+            // Canvas Redraw Triggers for view-specific elements
+            if(tabId === 'cardiology') drawECGWaveform();
+            if(tabId === 'imaging') drawDicomSlice();
+            if(tabId === 'surgical-lab') init3DScene();
+        }
+
+        /* Role Switcher Handler */
+        function onRoleChange(role) {
+            const status = document.getElementById('orchestratorStatus');
+            status.innerText = `Adapted context for ${role.toUpperCase()}`;
+        }
+
+        function toggleAlertDrawer() {
+            document.getElementById('alertDrawer').classList.toggle('hidden');
+        }
+
+        /* ==========================================================================
+           2. SYNTHETIC DATA & OVERVIEW REPOSITORY
+           ========================================================================== */
+        const syntheticPatients = [
+            { id: '#102', name: 'Gabriel Vance', age: 64, diag: 'Acute Anterior STEMI', triage: 'Red (Critical)', agent: 'Cardiology Diagnostic Agent', status: 'Cath Lab Prep' },
+            { id: '#108', name: 'Eleanor Vance', age: 71, diag: 'Acute Ischemic MCA Stroke', triage: 'Red (Critical)', agent: 'Stroke Intelligence Agent', status: 'tPA Evaluation' },
+            { id: '#114', name: 'Marcus Brody', age: 58, diag: 'Decompensated Heart Failure', triage: 'Amber (High)', agent: 'Heart Failure Agent', status: 'ICU Telemetry' },
+            { id: '#120', name: 'Sophia Sterling', age: 49, diag: 'Unruptured Brain Aneurysm', triage: 'Amber (High)', agent: 'Brain MRI Intelligence', status: 'Radiologist Review' }
+        ];
+
+        function populateOverviewTable() {
+            const tbody = document.getElementById('overviewPatientTable');
+            if(!tbody) return;
+            tbody.innerHTML = syntheticPatients.map(p => `
+                <tr class="hover:bg-sky-50/50 transition-colors">
+                    <td class="py-3 px-3 font-mono font-bold text-sky-700">${p.id} - ${p.name}</td>
+                    <td class="py-3 px-3 text-slate-800">${p.diag}</td>
+                    <td class="py-3 px-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.triage.includes('Red') ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${p.triage}</span>
+                    </td>
+                    <td class="py-3 px-3 text-slate-600">${p.agent}</td>
+                    <td class="py-3 px-3 font-semibold text-slate-700">${p.status}</td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="switchTab('patient-care')" class="text-sky-600 hover:text-sky-800 underline">Inspect</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /* ==========================================================================
+           3. LIVE MULTI-AGENT EXECUTION STREAM SIMULATOR
+           ========================================================================== */
+        const agentLogStream = [
+            { time: '10:14:02', agent: 'Orchestrator', msg: 'Delegated Task #8941 to Cardiology Diagnostic Agent: Evaluate ECG & Troponin kinetics for Patient #102.' },
+            { time: '10:14:03', agent: 'Cardiology Agent', msg: 'Parsed Lead II ST elevation (2.4mm). Cross-referenced Troponin T (482.5 ng/L).' },
+            { time: '10:14:04', agent: 'Verification Agent', msg: 'Verified against AHA 2023 STEMI Guidelines. Contradiction check: PASSED.' },
+            { time: '10:14:05', agent: 'Emergency Manager', msg: 'Triggered Cath Lab Activation Alert for Dr. E. Vance.' }
+        ];
+
+        function renderAgentLogFeed() {
+            const feedBox = document.getElementById('liveAgentFeed');
+            if(!feedBox) return;
+            feedBox.innerHTML = agentLogStream.map(log => `
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-2">
+                    <span class="text-slate-400">${log.time}</span>
+                    <span class="font-bold text-sky-700">[${log.agent}]</span>
+                    <span class="text-slate-700">${log.msg}</span>
+                </div>
+            `).join('');
+        }
+
+        function triggerTestAgentExecution() {
+            const newLog = {
+                time: new Date().toLocaleTimeString(),
+                agent: 'Central Orchestrator',
+                msg: 'Manual workload test dispatched. Bounded graph execution running tool call: aha_guidelines_retriever().'
+            };
+            agentLogStream.unshift(newLog);
+            renderAgentLogFeed();
+        }
+
+        function dispatchAgentQuery() {
+            const input = document.getElementById('quickAgentQuery').value;
+            if(!input) return;
+            agentLogStream.unshift({
+                time: new Date().toLocaleTimeString(),
+                agent: 'Central Manager',
+                msg: `Received Query: "${input}". Delegating to Neurology & Cardiology Agents...`
+            });
+            renderAgentLogFeed();
+            document.getElementById('quickAgentQuery').value = '';
+        }
+
+        /* Agent Inspector Card Switcher */
+        function inspectAgent(type) {
+            const title = document.getElementById('inspectorAgentTitle');
+            const desc = document.getElementById('inspectorAgentDesc');
+            if(type === 'neurology') {
+                title.innerText = 'Neurology Diagnostic Agent';
+                desc.innerText = 'Evaluates NIHSS score items, ischemic stroke penumbra volumes, and time-window criteria for tPA administration.';
+            } else if(type === 'imaging') {
+                title.innerText = 'Medical Imaging Agent';
+                desc.innerText = 'Generates preliminary DICOM ROI segmentations and multi-sequence T1/FLAIR intensity calculations.';
+            } else if(type === 'verification') {
+                title.innerText = 'Evidence Verification Agent';
+                desc.innerText = 'Ensures clinical outputs align with WHO/AHA/ASA guidelines and flags hallucination or safety hazards.';
+            } else {
+                title.innerText = 'Cardiology Diagnostic Agent';
+                desc.innerText = 'Interprets multi-lead ECG signals, evaluates hs-cTnT kinetics, and provides differential recommendations.';
+            }
+        }
+
+        /* ==========================================================================
+           4. CARDIOLOGY ECG CANVAS REAL-TIME RHYTHM ENGINE
+           ========================================================================== */
+        let ecgCanvas, ecgCtx, ecgAnimId;
+        let rhythmType = 'normal';
+        let xPos = 0;
+
+        function initECGCanvas() {
+            ecgCanvas = document.getElementById('ecgCanvas');
+            if(!ecgCanvas) return;
+            ecgCtx = ecgCanvas.getContext('2d');
+            ecgCanvas.width = ecgCanvas.offsetWidth;
+            ecgCanvas.height = ecgCanvas.offsetHeight;
+        }
+
+        function drawECGWaveform() {
+            if(!ecgCtx) initECGCanvas();
+            if(!ecgCtx) return;
+
+            const width = ecgCanvas.width;
+            const height = ecgCanvas.height;
+            const midY = height / 2;
+
+            // Clear background slice
+            ecgCtx.fillStyle = '#0f172a';
+            ecgCtx.fillRect(xPos, 0, 10, height);
+
+            // Calculate P-Q-R-S-T synthetic signal point
+            let y = midY;
+            const cycle = xPos % 120;
+
+            if(cycle > 30 && cycle < 40) y = midY - 6; // P Wave
+            else if(cycle === 55) y = midY + 10; // Q Wave
+            else if(cycle === 60) y = rhythmType === 'stemi' ? midY - 70 : midY - 60; // R Wave
+            else if(cycle === 65) y = midY + 15; // S Wave
+            else if(cycle > 70 && cycle < 95) {
+                // ST Segment & T Wave
+                if(rhythmType === 'stemi') y = midY - 20; // ST Elevation
+                else y = midY - 14; // Normal T Wave
+            }
+
+            // Draw line segment
+            ecgCtx.strokeStyle = rhythmType === 'stemi' ? '#f43f5e' : '#38bdf8';
+            ecgCtx.lineWidth = 2;
+            ecgCtx.beginPath();
+            ecgCtx.moveTo(xPos, y);
+            ecgCtx.lineTo(xPos + 2, y);
+            ecgCtx.stroke();
+
+            xPos += 2;
+            if(xPos >= width) xPos = 0;
+
+            ecgAnimId = requestAnimationFrame(drawECGWaveform);
+        }
+
+        function toggleECGRhythm(type) {
+            rhythmType = type;
+            document.getElementById('ecgHR').innerText = type === 'stemi' ? '110' : '72';
+            document.getElementById('ecgFlagText').innerText = type === 'stemi' ? 'CRITICAL: ST-Segment Elevation Detected (LAD Ischemia Risk)' : 'Sinus Rhythm - No Acute Ischemia';
+        }
+
+        /* ==========================================================================
+           5. NEUROLOGY NIHSS SCORE CALCULATOR
+           ========================================================================== */
+        function calcNIHSS() {
+            const v1 = parseInt(document.getElementById('nihss1').value);
+            const v2 = parseInt(document.getElementById('nihss2').value);
+            const v3 = parseInt(document.getElementById('nihss3').value);
+            const total = v1 + v2 + v3;
+            document.getElementById('nihssTotalScore').innerText = `${total} / 42`;
+        }
+
+        function approveStrokeProtocol() {
+            alert("CLINICIAN SIGN-OFF CONFIRMED: IV tPA protocol authorized for Patient #108.");
+        }
+
+        function triggerEmergencySim() {
+            switchTab('emergency');
+        }
+
+        /* ==========================================================================
+           6. MEDICAL IMAGING CENTER (DICOM SLICE SIMULATOR)
+           ========================================================================== */
+        let currentSequence = 'T1';
+
+        function setSequence(seq) {
+            currentSequence = seq;
+            document.getElementById('seqTag').innerText = seq + '-Axial';
+            drawDicomSlice();
+        }
+
+        function updateSlice(val) {
+            document.getElementById('sliceVal').innerText = `${val} / 28`;
+            document.getElementById('sliceTag').innerText = val;
+            drawDicomSlice();
+        }
+
+        function drawDicomSlice() {
+            const canvas = document.getElementById('dicomCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const slice = parseInt(document.getElementById('sliceSlider').value);
+
+            // Draw dark skull canvas base
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw simulated brain tissue shape
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(240, 240, 160, 190, 0, 0, Math.PI * 2);
+            ctx.fillStyle = currentSequence === 'FLAIR' ? '#1e293b' : '#334155';
+            ctx.fill();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            // Ventricles simulation
+            ctx.beginPath();
+            ctx.ellipse(200, 240, 20 + slice/2, 40, 0.2, 0, Math.PI * 2);
+            ctx.ellipse(280, 240, 20 + slice/2, 40, -0.2, 0, Math.PI * 2);
+            ctx.fillStyle = currentSequence === 'T2' ? '#e2e8f0' : '#0f172a';
+            ctx.fill();
+
+            // Draw AI Tumor/Ischemia overlay if checked
+            const chkAI = document.getElementById('chkAISegmentation').checked;
+            if(chkAI) {
+                ctx.beginPath();
+                ctx.arc(300, 200, 35, 0, Math.PI * 2);
+                ctx.fillStyle = currentSequence === 'FLAIR' ? 'rgba(239, 68, 68, 0.6)' : 'rgba(6, 182, 212, 0.5)';
+                ctx.fill();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '11px JetBrains Mono';
+                ctx.fillText('AI ROI: 14.2 cm³', 260, 150);
+            }
+
+            ctx.restore();
+        }
+
+        function radiologistApproveScan() {
+            alert("ELECTRONIC SIGNATURE ACCEPTED: DICOM Brain MRI study verified by Dr. R. Sharma, MD.");
+        }
+
+        /* ==========================================================================
+           7. THREE.JS 3D SURGICAL SIMULATION LAB ENGINE
+           ========================================================================== */
+        let scene, camera, renderer, currentMesh;
+
+        function init3DScene() {
+            const container = document.getElementById('threeCanvasContainer');
+            if(!container || renderer) return; // Prevent double init
+
+            const width = container.offsetWidth || 500;
+            const height = container.offsetHeight || 400;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x090d16);
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0x38bdf8, 1);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+
+            load3DModel('heart');
+
+            // Animation Loop
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                if(currentMesh) currentMesh.rotation.y += 0.008;
+                renderer.render(scene, camera);
+            }
+            animate3D();
+        }
+
+        function load3DModel(type) {
+            if(!scene) return;
+            if(currentMesh) scene.remove(currentMesh);
+
+            if(type === 'heart') {
+                // Procedural Heart representation (Torus Knot + Spheres)
+                const geometry = new THREE.TorusKnotGeometry(0.9, 0.35, 100, 16);
+                const material = new THREE.MeshPhongMaterial({ color: 0xf43f5e, shininess: 80 });
+                currentMesh = new THREE.Mesh(geometry, material);
+                document.getElementById('modelLabel').innerText = '3D Cardiac Ventricular Anatomy';
+            } else {
+                // Procedural Brain representation (Icosahedron with wireframe detailing)
+                const geometry = new THREE.IcosahedronGeometry(1.2, 3);
+                const material = new THREE.MeshPhongMaterial({ color: 0xa855f7, wireframe: true });
+                currentMesh = new THREE.Mesh(geometry, material);
+                document.getElementById('modelLabel').innerText = '3D Cerebrovascular Brain Model';
+            }
+            scene.add(currentMesh);
+        }
+
+        function answerQuiz(isCorrect) {
+            const fb = document.getElementById('quizFeedback');
+            fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+            if(isCorrect) {
+                fb.classList.add('bg-emerald-100', 'text-emerald-800');
+                fb.innerText = "CORRECT: LIMA grafts demonstrate resistance to atherosclerosis, yielding >90% 10-year patency rates.";
+            } else {
+                fb.classList.add('bg-rose-100', 'text-rose-800');
+                fb.innerText = "INCORRECT: While saphenous veins are harvested faster, LIMA arterial grafts offer superior long-term survival.";
+            }
+        }
+
+        /* ==========================================================================
+           8. RESEARCH & GUIDELINES QUERY ENGINE
+           ========================================================================== */
+        function searchGuidelines() {
+            const query = document.getElementById('guidelineQuery').value;
+            const res = document.getElementById('guidelinesResult');
+            if(!res) return;
+            res.innerHTML = `
+                <span class="font-bold text-sky-900">Retrieved PubMed / ESC Citation for "${query || 'STEMI Protocol'}":</span>
+                <p class="text-[11px] leading-relaxed">"Primary PCI is the recommended reperfusion strategy for patients with STEMI within 12 h of symptom onset (Class I, Level A)."</p>
+            `;
+        }
+
+        /* ==========================================================================
+           INIT ON WINDOW LOAD
+           ========================================================================== */
+        window.onload = function() {
+            populateOverviewTable();
+            renderAgentLogFeed();
+            initECGCanvas();
+            drawECGWaveform();
+        };
+    </script>
+</body>
+</html>

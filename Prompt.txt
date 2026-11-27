@@ -1,0 +1,543 @@
+# MASTER DEVELOPMENT PROMPT
+# NEUROCARDIA AI — COMPLETE END-TO-END AUTONOMOUS INTELLIGENCE HOSPITAL PLATFORM
+
+Act as a senior full-stack software architect, AI engineer, 3D medical visualization developer, cybersecurity engineer, database architect, and healthcare technology specialist.
+
+Your task is to transform my existing NEUROCARDIA AI web application into a complete, professional, responsive, end-to-end hospital intelligence platform.
+
+Do not create just a landing page or static dashboard. Build a functioning application with a frontend, backend, database, authentication, AI integrations, patient management, medical visualization, reporting, and deployment configuration.
+
+## 1. EXISTING PROJECT — PRESERVE AND ENHANCE
+
+Use my existing source code:
+
+- NEUROCARDIA_AI_Moving_Anatomy.html
+
+Use these uploaded anatomical images:
+
+- brain.png
+- Heart.png
+- Full-Body.png
+
+First inspect the existing code, understand its architecture, and preserve its working features.
+
+Do not unnecessarily delete, replace, or redesign existing modules.
+
+Integrate the new functionality into the existing NEUROCARDIA AI design and maintain a consistent professional medical interface.
+
+## 2. PROFESSIONAL LOGIN AND SECURITY
+
+Build a complete authentication system:
+
+- Login and logout.
+- User registration.
+- Secure password hashing.
+- Email verification.
+- Password reset.
+- Role-based access control.
+- Session management.
+- Admin dashboard.
+- Doctor dashboard.
+- Nurse dashboard.
+- Technician dashboard.
+- Patient portal.
+- Audit logs.
+- Account lockout and rate limiting.
+
+Use secure backend authentication. Never use hardcoded demo credentials as production authentication.
+
+## 3. PATIENT MANAGEMENT SYSTEM
+
+Create a complete electronic patient record system.
+
+Patient information:
+
+- Patient ID.
+- Full name.
+- Age and date of birth.
+- Gender.
+- Contact information.
+- Emergency contact.
+- Blood group.
+- Allergies.
+- Medical history.
+- Family history.
+- Current medications.
+- Previous surgeries.
+- Diagnosis.
+- Clinical notes.
+- Doctor information.
+- Admission date.
+- Discharge date.
+- Recovery status.
+
+Allow authorized clinicians to create, edit, search, view, and manage patient records.
+
+Display patient information consistently throughout all modules.
+
+## 4. REAL ANATOMICAL IMAGE UPLOAD AND 3D VIEWER
+
+This is one of the most important requirements.
+
+Create an interactive anatomical visualization module.
+
+Accept uploaded files for:
+
+- Human brain.
+- Human heart.
+- Full human body.
+- Lungs.
+- Liver.
+- Kidneys.
+- Other anatomical structures.
+
+Support common image formats including PNG, JPG, JPEG, and WebP.
+
+Also support genuine 3D model formats such as GLB and GLTF.
+
+For each uploaded image:
+
+1. Display the original image.
+2. Preserve its aspect ratio.
+3. Allow zooming.
+4. Allow mouse and touch rotation.
+5. Add automatic continuous rotation with pause and resume.
+6. Provide reset-view controls.
+7. Allow switching between front, side, top, and other available views when the source supports them.
+8. Link the selected anatomical asset to the selected patient.
+9. Save the asset securely.
+10. Display associated clinical information.
+
+IMPORTANT 3D REQUIREMENT:
+
+Do not pretend that a flat PNG or JPG image is a true 3D anatomical mesh.
+
+For 2D images, use a suitable 3D display surface or image viewer with rotation and zoom.
+
+For genuinely rotatable anatomical organs, load real GLB/GLTF meshes using Three.js or another suitable 3D engine.
+
+Support future DICOM CT/MRI integration, image segmentation, and patient-specific 3D reconstruction.
+
+## 5. BRAIN VISUALIZATION
+
+Create a dedicated brain explorer.
+
+Display:
+
+- Cerebrum.
+- Cerebellum.
+- Brainstem.
+- Frontal lobe.
+- Parietal lobe.
+- Temporal lobe.
+- Occipital lobe.
+- Visible vascular structures when available.
+
+Features:
+
+- Interactive 3D viewer.
+- Rotation and zoom.
+- Anatomical labels.
+- Region selection.
+- Patient-linked imaging.
+- Clinical observation notes.
+- Scan history.
+- Report generation.
+
+Do not invent a patient's abnormalities or scan findings.
+
+## 6. HEART VISUALIZATION
+
+Create a dedicated cardiac explorer.
+
+Display:
+
+- Right atrium.
+- Left atrium.
+- Right ventricle.
+- Left ventricle.
+- Aorta.
+- Pulmonary artery.
+- Pulmonary veins.
+- Superior vena cava.
+- Inferior vena cava.
+- Coronary vessels when supported by the model.
+
+Features:
+
+- Interactive 3D heart.
+- Continuous rotation.
+- Zoom and reset.
+- Anatomical labels.
+- Patient-linked cardiac reports.
+- ECG upload and visualization.
+- Echocardiography records.
+- Cardiac history.
+- Clinician observations.
+
+Do not generate fabricated ECG measurements or diagnostic results.
+
+## 7. FULL-BODY ANATOMICAL EXPLORER
+
+Create a full-body anatomical visualization.
+
+Include available anatomical layers:
+
+- Skeletal system.
+- Muscular system.
+- Nervous system.
+- Cardiovascular system.
+- Respiratory system.
+- Digestive system.
+- Urinary system.
+- Reproductive system.
+
+Allow users to toggle anatomical layers.
+
+Allow selection of individual organs.
+
+When an organ is selected, display:
+
+- Organ name.
+- Anatomical description.
+- Function.
+- Patient-linked observations.
+- Uploaded imaging.
+- Clinical notes.
+- Previous reports.
+
+Clearly distinguish educational anatomical models from patient-specific anatomical data.
+
+## 8. MULTI-AGENT AI SYSTEM
+
+Create a multi-agent orchestration architecture.
+
+Implement specialized agents:
+
+1. Patient Records Agent.
+2. Neurology Research Agent.
+3. Cardiology Research Agent.
+4. Medical Imaging Agent.
+5. Laboratory Data Agent.
+6. Clinical Documentation Agent.
+7. Medication Safety Agent.
+8. Operation Scheduling Agent.
+9. Recovery Monitoring Agent.
+10. Report Generation Agent.
+11. Hospital Administration Agent.
+12. Clinical Safety and Review Agent.
+
+Each agent must have:
+
+- A defined responsibility.
+- Input and output schemas.
+- Execution status.
+- Task history.
+- Error handling.
+- Logging.
+- Permission boundaries.
+
+Build a central orchestrator to coordinate agent workflows.
+
+Require clinician review and approval before clinical decisions, prescriptions, diagnoses, or treatment changes.
+
+Do not claim the platform is genuine AGI. Describe it as a multi-agent AI system unless genuine AGI has been independently demonstrated.
+
+## 9. AUTONOMOUS WORKFLOW ENGINE
+
+Implement workflows for:
+
+- Patient registration.
+- Appointment scheduling.
+- Medical record retrieval.
+- Lab report processing.
+- Imaging workflow.
+- Clinical documentation.
+- Operation scheduling.
+- Discharge preparation.
+- Recovery follow-up.
+- Report creation.
+
+Every workflow should show:
+
+- Current task.
+- Assigned agent.
+- Progress.
+- Start time.
+- Completion time.
+- Errors.
+- Approval status.
+- Audit trail.
+
+Allow authorized users to pause, resume, cancel, or approve workflows.
+
+## 10. OPERATION AND SURGERY MANAGEMENT
+
+Create an operation management dashboard.
+
+Include:
+
+- Operation ID.
+- Patient information.
+- Surgeon.
+- Medical team.
+- Operation type.
+- Scheduled date.
+- Scheduled time.
+- Start time.
+- End time.
+- Actual duration.
+- Operation room.
+- Preoperative checklist.
+- Postoperative notes.
+- Recovery status.
+
+Create an operation stopwatch with start, pause, resume, and reset.
+
+Track operation milestones.
+
+Do not automatically control medical devices or surgical equipment.
+
+## 11. RECOVERY MONITORING
+
+Build a patient recovery dashboard.
+
+Track clinician-entered or properly integrated measurements:
+
+- Heart rate.
+- Blood pressure.
+- Oxygen saturation.
+- Temperature.
+- Pain score.
+- Mobility.
+- Recovery milestones.
+- Medication administration.
+- Follow-up schedule.
+
+Show historical trends and recovery progress.
+
+Clearly indicate whether measurements are real, imported, manually entered, or simulated.
+
+Do not invent live device connections or real-time patient measurements.
+
+## 12. MEDICAL REPORT GENERATION
+
+Generate downloadable reports for:
+
+- Patient summary.
+- Brain imaging.
+- Heart imaging.
+- Full-body anatomy.
+- Laboratory results.
+- Operation records.
+- Recovery status.
+- Clinical documentation.
+
+Support:
+
+- PDF.
+- DOCX.
+- CSV.
+- JSON.
+
+Reports should include:
+
+- Patient ID.
+- Patient demographics.
+- Report title.
+- Date and time.
+- Relevant source data.
+- Clinical observations.
+- Author and reviewer.
+- Approval status.
+- Limitations and disclaimers.
+
+Never automatically mark an AI-generated report as a clinician-approved diagnosis.
+
+## 13. DATABASE AND BACKEND
+
+Build a real backend and persistent database.
+
+Suggested architecture:
+
+Frontend:
+- React or Next.js.
+- TypeScript.
+- Responsive design.
+- Three.js for 3D visualization.
+
+Backend:
+- Python FastAPI or Node.js.
+- REST APIs.
+- WebSocket support where appropriate.
+- Secure authentication.
+- AI agent orchestration.
+
+Database:
+- PostgreSQL.
+- Proper relational schema.
+- Patient records.
+- User accounts.
+- Clinical notes.
+- Imaging metadata.
+- Operation records.
+- Agent task history.
+- Recovery records.
+- Audit logs.
+
+File storage:
+- Secure image storage.
+- Medical document storage.
+- 3D model storage.
+- Access-controlled downloads.
+
+Use database migrations, validation, backups, and error handling.
+
+## 14. MEDICAL IMAGING INTEGRATION
+
+Prepare the architecture for:
+
+- DICOM upload.
+- DICOM metadata extraction.
+- CT imaging.
+- MRI imaging.
+- Ultrasound.
+- X-ray.
+- Image series viewing.
+- Image segmentation.
+- 3D reconstruction.
+
+Use appropriate medical imaging libraries.
+
+Require validation and qualified clinician review for patient-specific reconstructions and findings.
+
+## 15. HOSPITAL ADMINISTRATION
+
+Create dashboards for:
+
+- Total patients.
+- Active admissions.
+- Available beds.
+- Doctors.
+- Departments.
+- Appointments.
+- Operations.
+- Medical reports.
+- Pending approvals.
+- Agent activity.
+
+Provide search, filtering, pagination, and export.
+
+## 16. UI AND USER EXPERIENCE
+
+Maintain the NEUROCARDIA AI visual identity.
+
+Design requirements:
+
+- Professional hospital dashboard.
+- Dark navy and cyan visual theme.
+- Modern typography.
+- Responsive desktop, tablet, and mobile layouts.
+- Clear navigation.
+- Professional cards.
+- Data tables.
+- Charts.
+- Loading indicators.
+- Notifications.
+- Error messages.
+- Accessible forms.
+- Keyboard navigation.
+
+All navigation buttons, forms, filters, and controls must work.
+
+Do not leave decorative controls that pretend to perform actions.
+
+## 17. CYBERSECURITY AND PATIENT PRIVACY
+
+Implement:
+
+- Encryption in transit.
+- Encryption at rest.
+- Secure password hashing.
+- Role-based permissions.
+- Audit logging.
+- Secure file upload validation.
+- File size limits.
+- Malware scanning integration.
+- API authentication.
+- Rate limiting.
+- Input validation.
+- Backup and recovery.
+
+Design for applicable healthcare privacy requirements, including HIPAA where applicable and relevant local laws.
+
+Do not use real patient data in demonstrations without appropriate authorization and safeguards.
+
+## 18. TESTING AND VALIDATION
+
+Create:
+
+- Unit tests.
+- API tests.
+- Database tests.
+- Authentication tests.
+- File upload tests.
+- 3D viewer tests.
+- Workflow tests.
+- Report generation tests.
+- Responsive UI tests.
+- Security tests.
+
+Test all major workflows before declaring the application complete.
+
+Fix console errors, broken links, missing dependencies, and nonfunctional controls.
+
+## 19. REQUIRED FINAL DELIVERABLES
+
+Deliver the complete project, not only a design.
+
+Provide:
+
+1. Complete frontend source code.
+2. Complete backend source code.
+3. Database schema and migrations.
+4. All required configuration files.
+5. Anatomical image integration.
+6. 3D viewer implementation.
+7. AI agent architecture.
+8. Patient management.
+9. Report generation.
+10. Authentication and authorization.
+11. API documentation.
+12. Automated tests.
+13. Docker configuration.
+14. `.env.example`.
+15. Installation instructions.
+16. Local development instructions.
+17. Production deployment instructions.
+18. Administrator guide.
+
+Provide a complete downloadable project ZIP and a runnable HTML build or deployed web application where supported.
+
+## 20. STRICT COMPLETION RULES
+
+- First inspect my existing application and uploaded assets.
+- Preserve existing working features.
+- Do not replace the application with a generic template.
+- Do not provide pseudocode instead of implementation.
+- Do not leave placeholder buttons.
+- Do not fabricate medical records or AI results.
+- Do not claim simulated data is live.
+- Do not claim generic anatomy images are patient-specific.
+- Do not claim that a rotating 2D image is a true 3D model.
+- Do not claim that the application is clinically validated or production-ready without evidence.
+
+Work in phases, implement each phase, run tests, fix errors, and then continue.
+
+If a required API key, external service, DICOM dataset, or 3D model is unavailable, implement the integration interface, document the missing dependency, and provide a working demonstration using clearly labeled sample data.
+
+FINAL OBJECTIVE:
+
+Deliver a complete, secure, responsive, modular NEUROCARDIA AI hospital intelligence application that integrates my uploaded brain, heart, and full-body anatomical images; supports genuine 3D models; connects patient information to medical imaging; coordinates multi-agent workflows; generates downloadable reports; and can be installed and deployed with documented instructions.
+
+Build the actual working application, not just a prototype screenshot.
